@@ -11,7 +11,6 @@ import java.util.List;
  */
 public class BoardMoves {
 
-   
     /**
      * the function build a list with all the possible Moves for the pawn in
      * pawnPosition in the Game state
@@ -118,6 +117,7 @@ public class BoardMoves {
 
     /**
      * get all capturers for move of white Player
+     *
      * @param move the move taken
      * @param state the current board State
      * @return bit set mask of all the opponent killed pawns
@@ -137,8 +137,9 @@ public class BoardMoves {
 
     }
 
-      /**
+    /**
      * get all capturers for move of black Player
+     *
      * @param move the move taken
      * @param state the current board State
      * @return bit set mask of all the opponent killed pawns
@@ -146,7 +147,8 @@ public class BoardMoves {
     private static BitSet getCapturesForBlack(Action move, IState state) {
 
         BitSet blacks = (BitSet) state.getBlackPawns().clone();
-        // clear the miving piece
+
+        // clear the Moving piece
         blacks.clear(move.getFrom());
 
         BitSet king = (BitSet) state.getKing().clone();
@@ -168,7 +170,7 @@ public class BoardMoves {
                     capturesPawns.set(kingPosition);
                 }
             } else {
-                
+
                 BitSet result = new BitSet(IState.BOARD_DIMENSION);
                 BitSet enemyMask = null;
                 // need three captures....
@@ -232,7 +234,7 @@ public class BoardMoves {
 
         //Check DOWN
         // Check if the postion is not in the last 2 rows
-        if (position / IState.EDGE_SIZE < IState.EDGE_SIZE - 1) {
+        if (position / IState.EDGE_SIZE < IState.EDGE_SIZE - 2) {
             int oneDownCell = position + IState.EDGE_SIZE;
             if (opponent.get(oneDownCell)) {
                 int twoDownCell = oneDownCell + IState.EDGE_SIZE;
@@ -286,19 +288,23 @@ public class BoardMoves {
 
         int threat = 0;
 
+        //left to the king
         if (kingPos % IState.EDGE_SIZE != 0 && (blacks.get(kingPos - 1) || GamePositions.obstacles.get(kingPos - 1))) {
             threat++;
         }
 
+        //right to the king
         if (kingPos % IState.EDGE_SIZE != IState.EDGE_SIZE - 1 && (blacks.get(kingPos + 1) || GamePositions.obstacles.get(kingPos + 1))) {
             threat++;
         }
 
-        if (kingPos > IState.EDGE_SIZE && (blacks.get(kingPos - IState.EDGE_SIZE) || GamePositions.obstacles.get(kingPos - IState.EDGE_SIZE))) {
+        //above to the king
+        if (kingPos >= IState.EDGE_SIZE && (blacks.get(kingPos - IState.EDGE_SIZE) || GamePositions.obstacles.get(kingPos - IState.EDGE_SIZE))) {
             threat++;
         }
 
-        if (kingPos < 72 && (blacks.get(kingPos + IState.EDGE_SIZE) || GamePositions.obstacles.get(kingPos + IState.EDGE_SIZE))) {
+        //below  the king
+        if (kingPos < IState.BOARD_DIMENSION - IState.EDGE_SIZE && (blacks.get(kingPos + IState.EDGE_SIZE) || GamePositions.obstacles.get(kingPos + IState.EDGE_SIZE))) {
             threat++;
         }
 
@@ -318,19 +324,23 @@ public class BoardMoves {
 
         int protects = 0;
 
+        //left to the king
         if (kingPos % IState.EDGE_SIZE != 0 && whites.get(kingPos - 1)) {
             protects++;
         }
 
+        //right to the king
         if (kingPos % IState.EDGE_SIZE != IState.EDGE_SIZE - 1 && whites.get(kingPos + 1)) {
             protects++;
         }
 
-        if (kingPos > IState.EDGE_SIZE && whites.get(kingPos - IState.EDGE_SIZE)) {
+        //above to the king
+        if (kingPos >= IState.EDGE_SIZE && whites.get(kingPos - IState.EDGE_SIZE)) {
             protects++;
         }
 
-        if (kingPos < 72 && whites.get(kingPos + IState.EDGE_SIZE)) {
+        //below  the king
+        if (kingPos < IState.BOARD_DIMENSION - IState.EDGE_SIZE && whites.get(kingPos + IState.EDGE_SIZE)) {
             protects++;
         }
 
@@ -340,15 +350,15 @@ public class BoardMoves {
 
     /**
      * @param kingBoard the kings bit set
-     * @return how many king pawns needed to eat king 
+     * @return how many king pawns needed to eat king
      */
     public static int pawnsToEatKing(BitSet kingBoard) {
-        
+
         // castle
         if (kingBoard.get(GamePositions.CENTER_POSITION)) {
             return 4;
         }
-        
+
         // near castle
         if (GamePositions.specailKingCapture.intersects(kingBoard)) {
             return 3;
